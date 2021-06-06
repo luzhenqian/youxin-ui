@@ -7,7 +7,16 @@ import {
 	Dropdown,
 	Menu,
 } from 'ant-design-vue'
-import { defineComponent, ref, UnwrapRef, reactive, toRaw } from 'vue'
+import {
+	defineComponent,
+	ref,
+	UnwrapRef,
+	reactive,
+	toRaw,
+	onMounted,
+} from 'vue'
+import { TreeDataItem } from 'ant-design-vue/lib/tree/Tree'
+import { ToTree } from './json-to-tree'
 import * as json from './project-json'
 
 interface FormState {
@@ -15,39 +24,17 @@ interface FormState {
 	desc: string
 }
 
-const treeData = [
-	{
-		title: '0-0',
-		key: '0-0',
-		children: [
-			{
-				title: '0-0-0',
-				key: '0-0-0',
-				children: [
-					{ title: '0-0-0-0', key: '0-0-0-0' },
-					{ title: '0-0-0-1', key: '0-0-0-1' },
-					{ title: '0-0-0-2', key: '0-0-0-2' },
-				],
-			},
-			{
-				title: '0-0-1',
-				key: '0-0-1',
-				children: [
-					{ title: '0-0-1-0', key: '0-0-1-0' },
-					{ title: '0-0-1-1', key: '0-0-1-1' },
-					{ title: '0-0-1-2', key: '0-0-1-2' },
-				],
-			},
-		],
-	},
-]
-
 export default defineComponent({
-	setup () {
+	setup() {
 		const visible = ref<boolean>(false)
+		const treeData = ref<TreeDataItem>([])
 		const showCreateForm = () => {
 			visible.value = true
 		}
+		onMounted(() => {
+			treeData.value = ToTree(json.default)
+			console.log(treeData.value)
+		})
 		const hideCreateForm = () => {
 			visible.value = false
 		}
@@ -75,54 +62,47 @@ export default defineComponent({
 
 		return () => (
 			<>
-				<Button type='primary' onClick={showCreateForm}>
+				<Button type="primary" onClick={showCreateForm}>
 					创建项目
 				</Button>
 				<Modal
 					visible={visible.value}
-					title='创建项目'
-					okText='创建'
-					cancelText='取消'
+					title="创建项目"
+					okText="创建"
+					cancelText="取消"
 					onCancel={hideCreateForm}
 					onOk={onSubmit}
 				>
 					<Form model={formState} label-col={labelCol} wrapper-col={wrapperCol}>
-						<Form.Item label='名称'>
+						<Form.Item label="名称">
 							<Input value={formState.name} onInput={setName} />
 						</Form.Item>
-						<Form.Item label='描述'>
+						<Form.Item label="描述">
 							<Input.TextArea value={formState.desc} onInput={setDesc} />
 						</Form.Item>
 					</Form>
 				</Modal>
 
-				<Tree tree-data={treeData} expandedKeys={expandedKeys.value}>
+				<Tree tree-data={treeData.value} expandedKeys={expandedKeys.value}>
 					{{
-						title: (props: any) => {
-							const title = props.title
-							const treeKey = props.key
-							return (
-								<Dropdown trigger={['contextmenu']}>
-									<span>{title}</span>
-									{{
-										overlay: () => {
-											console.log(1)
-											return (
-												<Menu
-													onClick={({ key: menuKey }: any) =>
-														onContextMenuClick(treeKey, menuKey)
-													}
-												>
-													<Menu.Item key={'1'}>1st menu item</Menu.Item>
-													<Menu.Item key={'2'}>2nd menu item</Menu.Item>
-													<Menu.Item key={'3'}>3rd menu item</Menu.Item>
-												</Menu>
-											)
-										},
-									}}
-								</Dropdown>
-							)
-						},
+						title: (props: any) => (
+							<Dropdown trigger={['contextmenu']}>
+								{{
+									default: () => <span>{props.title}</span>,
+									overlay: () => (
+										<Menu
+											onClick={({ key: menuKey }: any) =>
+												onContextMenuClick(props.key, menuKey)
+											}
+										>
+											<Menu.Item key={'rename'}>重命名</Menu.Item>
+											<Menu.Item key={'delete'}>删除</Menu.Item>
+											<Menu.Item key={'add'}>新增</Menu.Item>
+										</Menu>
+									),
+								}}
+							</Dropdown>
+						),
 					}}
 				</Tree>
 			</>
