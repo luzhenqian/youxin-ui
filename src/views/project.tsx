@@ -33,7 +33,6 @@ export default defineComponent({
 		}
 		onMounted(() => {
 			treeData.value = ToTree(json.default)
-			console.log(treeData.value)
 		})
 		const hideCreateForm = () => {
 			visible.value = false
@@ -48,17 +47,10 @@ export default defineComponent({
 			// console.log('submit!',test.value)
 			console.log('submit!', formState, toRaw(formState))
 		}
-		const setDesc = (e: InputEvent) => {
-			formState.desc = (e.target as HTMLInputElement).value
-		}
-		const setName = (e: InputEvent) => {
-			formState.name = (e.target as HTMLInputElement).value
-		}
-
 		const onContextMenuClick = (treeKey: string, menuKey: string) => {
 			console.log(`treeKey: ${treeKey}, menuKey: ${menuKey}`)
 		}
-		const expandedKeys = ref<string[]>(['0-0-0', '0-0-1'])
+		const expandedKeys = ref<string[]>([])
 
 		return () => (
 			<>
@@ -75,15 +67,18 @@ export default defineComponent({
 				>
 					<Form model={formState} label-col={labelCol} wrapper-col={wrapperCol}>
 						<Form.Item label="名称">
-							<Input value={formState.name} onInput={setName} />
+							<Input v-model={[formState.name, 'value']} />
 						</Form.Item>
 						<Form.Item label="描述">
-							<Input.TextArea value={formState.desc} onInput={setDesc} />
+							<Input v-model={[formState.desc, 'value']} />
 						</Form.Item>
 					</Form>
 				</Modal>
 
-				<Tree tree-data={treeData.value} expandedKeys={expandedKeys.value}>
+				<Tree
+					tree-data={treeData.value}
+					v-model={[expandedKeys.value, ['expandedKeys']]}
+				>
 					{{
 						title: (props: any) => (
 							<Dropdown trigger={['contextmenu']}>
