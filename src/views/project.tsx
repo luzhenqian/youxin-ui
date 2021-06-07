@@ -18,6 +18,7 @@ import {
 import { TreeDataItem } from 'ant-design-vue/lib/tree/Tree'
 import { ToTree } from './json-to-tree'
 import * as json from './project-json'
+import './styles/project.scss'
 
 interface FormState {
 	name: string
@@ -28,6 +29,7 @@ export default defineComponent({
 	setup() {
 		const visible = ref<boolean>(false)
 		const treeData = ref<TreeDataItem>([])
+		const currentProject = ref<string>('')
 		const showCreateForm = () => {
 			visible.value = true
 		}
@@ -51,6 +53,12 @@ export default defineComponent({
 			console.log(`treeKey: ${treeKey}, menuKey: ${menuKey}`)
 		}
 		const expandedKeys = ref<string[]>([])
+		const onSelect = (
+			selectedKeys: any,
+			e: { selected: boolean; selectedNodes: any; node: any; event: any }
+		) => {
+			console.log(selectedKeys, e)
+		}
 
 		return () => (
 			<>
@@ -78,12 +86,13 @@ export default defineComponent({
 				<Tree
 					tree-data={treeData.value}
 					v-model={[expandedKeys.value, ['expandedKeys']]}
+					onSelect={onSelect}
 				>
 					{{
 						title: (props: any) => (
 							<Dropdown trigger={['contextmenu']}>
 								{{
-									default: () => <span>{props.title}</span>,
+									default: () => <span class="tree-node">{props.title}</span>,
 									overlay: () => (
 										<Menu
 											onClick={({ key: menuKey }: any) =>
@@ -105,6 +114,10 @@ export default defineComponent({
 						),
 					}}
 				</Tree>
+
+				<div>
+					<Input v-model={[currentProject.value, 'value']} />
+				</div>
 			</>
 		)
 	},
