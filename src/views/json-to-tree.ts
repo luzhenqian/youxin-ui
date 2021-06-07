@@ -7,20 +7,22 @@ export function ToTree(schema: Schema): TreeDataItem {
 		for (const service of project.services) {
 			const apis: TreeDataItem[] = []
 			for (const api of service.apis) {
-				apis.push({ title: api.api, key: api.api, /*...api*/ })
+				apis.push({ title: api.api, key: api.api, type: 'api', ...api })
 			}
 			services.push({
 				title: service.name,
 				key: service.name,
 				children: apis,
-				// ...service,
+				type: 'service',
+				...service,
 			})
 		}
 		treeData.push({
 			title: project.name,
 			key: project.name,
 			children: services,
-			// ...services,
+			type: 'project',
+			...services,
 		})
 	}
 	return treeData

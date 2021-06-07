@@ -92,7 +92,12 @@ export default defineComponent({
 										>
 											<Menu.Item key={'rename'}>重命名</Menu.Item>
 											<Menu.Item key={'delete'}>删除</Menu.Item>
-											<Menu.Item key={'add'}>新增</Menu.Item>
+											{props.type === 'project' ? (
+												<Menu.Item key={'add'}>新增服务</Menu.Item>
+											) : null}
+											{props.type === 'service' ? (
+												<Menu.Item key={'add'}>新增 API</Menu.Item>
+											) : null}
 										</Menu>
 									),
 								}}
